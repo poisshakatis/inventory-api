@@ -10,6 +10,7 @@ dotnet tool update -g dotnet-aspnet-codegenerator
 ## EF Core migrations
 
 Run from solution folder
+Make sure to run docker-compose.yaml (cli command below) before updating database
 
 ~~~bash
 dotnet ef migrations --project App.DAL.EF --startup-project WebApp add Initial

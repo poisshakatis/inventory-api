@@ -120,7 +120,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
+app.UseCors("CorsAllowAll");
 app.UseAuthorization();
 
 app.UseSwagger();
