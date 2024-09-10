@@ -1,6 +1,6 @@
+using App.Constants;
 using App.Domain;
 using App.Domain.Identity;
-using App.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,19 +29,6 @@ public static class AppDataInit
                 Name = "kapp",
                 AppUserId = user.Id,
                 ParentStorageId = parentStorageId
-            });
-            context.SaveChanges();
-        }
-        
-        if (!context.Items.Any())
-        {
-            context.Add(new Item
-            {
-                Name = "kaus",
-                Image = [],
-                Description = "valge",
-                Category = Category.HouseholdItems,
-                StorageId = parentStorageId
             });
             context.SaveChanges();
         }

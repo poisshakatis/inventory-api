@@ -1,4 +1,4 @@
-﻿namespace App.Enums;
+﻿namespace App.Constants;
 
 public enum Category
 {

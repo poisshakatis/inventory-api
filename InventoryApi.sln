@@ -20,7 +20,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "1_App", "1_App", "{F7A89042
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App.Domain", "App.Domain\App.Domain.csproj", "{E7140340-C635-4D09-AEAF-9A02580DF16A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App.Enums", "App.Enums\App.Enums.csproj", "{52055F72-DBFF-4641-A1A6-8FCB906EB98F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App.Constants", "App.Constants\App.Constants.csproj", "{52055F72-DBFF-4641-A1A6-8FCB906EB98F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "App.DAL.EF", "App.DAL.EF\App.DAL.EF.csproj", "{7B5584D3-80E8-44BA-839F-E42639DF742C}"
 EndProject

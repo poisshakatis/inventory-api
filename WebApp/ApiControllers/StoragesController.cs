@@ -49,7 +49,6 @@ public class StoragesController(IAppUnitOfWork uow, IMapper mapper) : Controller
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [Produces(MediaTypeNames.Application.Json)]
-    [Consumes(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<PublicDTO.Storage>> GetStorage(Guid id)
     {
         var storage = await uow.Storages.FindWithParentAsync(id);

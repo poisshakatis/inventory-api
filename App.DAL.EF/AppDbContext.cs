@@ -1,6 +1,6 @@
-﻿using App.Domain;
+﻿using App.Constants;
+using App.Domain;
 using App.Domain.Identity;
-using App.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;

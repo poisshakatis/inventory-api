@@ -13,7 +13,8 @@
     <ItemGroup>
         <ProjectReference Include="..\Base.Contracts.Domain\Base.Contracts.Domain.csproj"/>
         <ProjectReference Include="..\Base.Domain\Base.Domain.csproj"/>
-        <ProjectReference Include="..\App.Enums\App.Enums.csproj"/>
+        <ProjectReference Include="..\App.Constants\App.Constants.csproj" />
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
 
 </Project>

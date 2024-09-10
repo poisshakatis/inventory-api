@@ -10,7 +10,7 @@ public interface IItemRepository : IEntityRepository<Domain.Item>
 {
     Task<IEnumerable<DALDTO.Item>> AllWithStorageAsync(Guid userId);
     Task<DALDTO.Item?> FindWithStorageAsync(Guid id);
-    void Update(DALDTO.Item item);
-    void Add(DALDTO.Item item);
-    List<UserItemCount> AllUsersWithItemCount(List<AppUser> users);
+    Task Update(ItemReceive item);
+    Task Add(ItemReceive item);
+    Task<List<UserCategoryItemCount>> AllUsersWithCategoryItemCount(List<AppUser> users);
 }

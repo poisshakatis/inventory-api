@@ -5,11 +5,12 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace App.DTO.v1_0;
 
-public class ItemReceive
+public class ItemSend
 {
+    [BindNever]
     public Guid Id { get; set; }
     [MaxLength(128)] public required string Name { get; set; }
-    public required IFormFile Image { get; set; }
+    public required string ImagePath { get; set; }
     [MaxLength(128)] public string? SerialNumber { get; set; }
     [MaxLength(2048)] public required string Description { get; set; }
     public Category Category { get; set; }
