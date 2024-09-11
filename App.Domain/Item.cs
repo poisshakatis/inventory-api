@@ -8,7 +8,7 @@ namespace App.Domain;
 public class Item : BaseEntityId
 {
     [MaxLength(128)] public required string Name { get; set; }
-    [MaxLength(256)] public required string ImagePath { get; set; }
+    [MaxLength(256)] public required string ImageName { get; set; }
     [MaxLength(128)] public string? SerialNumber { get; set; }
     [MaxLength(2048)] public required string Description { get; set; }
     public Category Category { get; set; }

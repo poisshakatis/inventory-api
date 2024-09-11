@@ -37,9 +37,9 @@ public class ItemsController(IAppUnitOfWork uow, IMapper mapper, UserManager<App
     [ProducesResponseType<IEnumerable<PublicDTO.ItemSend>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Produces(MediaTypeNames.Application.Json)]
-    public async Task<ActionResult<IEnumerable<PublicDTO.ItemSend>>> GetItems()
+    public async Task<ActionResult<IEnumerable<PublicDTO.ItemSend>>> GetItems(string? query, int? limit)
     {
-        var res = (await uow.Items.AllWithStorageAsync(User.GetUserId()))
+        var res = (await uow.Items.AllWithStorageAsync(User.GetUserId(), query, limit))
             .Select(s => _mapper.Map(s));
         return Ok(res);
     }
@@ -57,7 +57,7 @@ public class ItemsController(IAppUnitOfWork uow, IMapper mapper, UserManager<App
     public async Task<ActionResult<PublicDTO.ItemSend>> GetItem(Guid id)
     {
         var item = await uow.Items.FindWithStorageAsync(id);
-        if (item == null || !System.IO.File.Exists(item.ImagePath))
+        if (item == null)
         {
             return NotFound();
         }
@@ -99,6 +99,7 @@ public class ItemsController(IAppUnitOfWork uow, IMapper mapper, UserManager<App
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [Consumes(MediaTypeNames.Multipart.FormData)]
+    [Produces(MediaTypeNames.Application.Json)]
     public async Task<ActionResult<PublicDTO.ItemSend>> PostItem([FromForm] PublicDTO.ItemReceive item)
     {
         if (item.Image.Length == 0 || !ImageExtensions.IsValidImageExtension(Path.GetExtension(item.Image.FileName)))
@@ -132,13 +133,24 @@ public class ItemsController(IAppUnitOfWork uow, IMapper mapper, UserManager<App
         {
             return NotFound();
         }
+
+        var imagePath = GetImagePath(item.ImageName);
         
-        System.IO.File.Delete(item.ImagePath);
+        System.IO.File.Delete(imagePath);
 
         uow.Items.Remove(item);
         await uow.SaveChangesAsync();
 
         return NoContent();
+    }
+    
+    private static string GetImagePath(string imageName)
+    {
+        var dir = Directory.GetParent(Environment.CurrentDirectory)!.FullName;
+        var uploadsFolder = Path.Combine(dir, "uploads");
+        Directory.CreateDirectory(uploadsFolder);
+
+        return Path.Combine(uploadsFolder, imageName);
     }
 
     /// <summary>

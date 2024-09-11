@@ -16,19 +16,19 @@ public class ItemRepository : BaseEntityRepository<Domain.Item, AppDbContext>,
     {
     }
 
-    public async Task<IEnumerable<DALDTO.Item>> AllWithStorageAsync(Guid userId)
+    public async Task<IEnumerable<DALDTO.Item>> AllWithStorageAsync(Guid userId, string? query, int? limit)
     {
-        var res = await GetAllItems(userId);
+        var res = await GetAllItems(userId, query, limit);
         return res.Select(MapDomainToDalDto);
     }
-    
+
     private static DALDTO.Item MapDomainToDalDto(Domain.Item item)
     {
         return new DALDTO.Item
         {
             Id = item.Id,
             Name = item.Name,
-            ImagePath = item.ImagePath,
+            ImageName = item.ImageName,
             SerialNumber = item.SerialNumber,
             Description = item.Description,
             Category = item.Category,
@@ -37,42 +37,44 @@ public class ItemRepository : BaseEntityRepository<Domain.Item, AppDbContext>,
             StorageName = item.Storage!.Name,
         };
     }
-    
+
     public async Task<DALDTO.Item?> FindWithStorageAsync(Guid id)
     {
         var res = await RepoDbSet
             .Include(i => i.Storage)
             .FirstOrDefaultAsync(i => i.Id.Equals(id));
-    
+
         return res != null ? MapDomainToDalDto(res) : null;
     }
 
     public async Task Update(ItemReceive item)
     {
-        var oldImagePath = await RepoDbSet
+        var oldImageName = await RepoDbSet
             .Where(i => i.Id.Equals(item.Id))
-            .Select(i => i.ImagePath)
+            .Select(i => i.ImageName)
             .SingleOrDefaultAsync();
 
-        if (oldImagePath != null)
+        if (oldImageName != null)
         {
+            var oldImagePath = GetImagePath(oldImageName);
+
             File.Delete(oldImagePath);
         }
-        
-        var newImagePath = GetImagePath(item);
+
+        var newImagePath = GetImagePath(item.Image.FileName);
 
         await UploadImage(item, newImagePath);
 
-        RepoDbSet.Update(MapItemReceiveToDomain(item, newImagePath));
+        RepoDbSet.Update(MapItemReceiveToDomain(item));
     }
 
-    private static Item MapItemReceiveToDomain(ItemReceive item, string imagePath)
+    private static Item MapItemReceiveToDomain(ItemReceive item)
     {
         return new Domain.Item
         {
             Id = item.Id,
             Name = item.Name,
-            ImagePath = imagePath,
+            ImageName = item.Image.FileName,
             SerialNumber = item.SerialNumber,
             Description = item.Description,
             Category = item.Category,
@@ -83,11 +85,11 @@ public class ItemRepository : BaseEntityRepository<Domain.Item, AppDbContext>,
 
     public async Task Add(ItemReceive item)
     {
-        var imagePath = GetImagePath(item);
+        var imagePath = GetImagePath(item.Image.FileName);
 
         await UploadImage(item, imagePath);
 
-        RepoDbSet.Add(MapItemReceiveToDomain(item, imagePath));
+        RepoDbSet.Add(MapItemReceiveToDomain(item));
     }
 
     private static async Task UploadImage(ItemReceive item, string imagePath)
@@ -96,14 +98,13 @@ public class ItemRepository : BaseEntityRepository<Domain.Item, AppDbContext>,
         await item.Image.CopyToAsync(stream);
     }
 
-    private static string GetImagePath(ItemReceive item)
+    private static string GetImagePath(string imageName)
     {
-        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+        var dir = Directory.GetParent(Environment.CurrentDirectory)!.FullName;
+        var uploadsFolder = Path.Combine(dir, "uploads");
         Directory.CreateDirectory(uploadsFolder);
 
-        var imageName = Path.GetFileName(item.Image.FileName);
-        var imagePath = Path.Combine(uploadsFolder, imageName);
-        return imagePath;
+        return Path.Combine(uploadsFolder, imageName);
     }
 
     public async Task<List<UserCategoryItemCount>> AllUsersWithCategoryItemCount(List<AppUser> users)
@@ -137,11 +138,26 @@ public class ItemRepository : BaseEntityRepository<Domain.Item, AppDbContext>,
         return res;
     }
 
-    private async Task<List<Item>> GetAllItems(Guid userId)
+    private async Task<List<Item>> GetAllItems(Guid userId, string? query = null, int? limit = null)
     {
-        return await RepoDbSet
+        var baseQuery = RepoDbSet
             .Include(i => i.Storage)
-            .Where(i => i.Storage!.AppUserId.Equals(userId))
-            .ToListAsync();
+            .Where(i => i.Storage!.AppUserId.Equals(userId));
+
+        if (!string.IsNullOrEmpty(query))
+        {
+            baseQuery = baseQuery.Where(i => 
+                i.Name.Contains(query) ||
+                (i.SerialNumber != null && i.SerialNumber.Contains(query)) ||
+                i.Description.Contains(query) ||
+                (i.Storage != null && i.Storage.Name.Contains(query)));
+        }
+
+        if (limit.HasValue)
+        {
+            baseQuery = baseQuery.Take(limit.Value);
+        }
+
+        return await baseQuery.ToListAsync();
     }
 }

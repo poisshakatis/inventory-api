@@ -8,7 +8,7 @@ public class Item : IDomainEntityId
 {
     public Guid Id { get; set; }
     public required string Name { get; set; }
-    public required string ImagePath { get; set; }
+    public required string ImageName { get; set; }
     public string? SerialNumber { get; set; }
     public required string Description { get; set; }
     public Category Category { get; set; }

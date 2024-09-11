@@ -8,7 +8,7 @@ namespace App.Contracts.DAL.Repositories;
 
 public interface IItemRepository : IEntityRepository<Domain.Item>
 {
-    Task<IEnumerable<DALDTO.Item>> AllWithStorageAsync(Guid userId);
+    Task<IEnumerable<DALDTO.Item>> AllWithStorageAsync(Guid userId, string? query, int? limit);
     Task<DALDTO.Item?> FindWithStorageAsync(Guid id);
     Task Update(ItemReceive item);
     Task Add(ItemReceive item);
