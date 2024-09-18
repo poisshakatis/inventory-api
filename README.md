@@ -29,3 +29,7 @@ docker compose up
 ~~~bash
 dotnet run --project WebApp
 ~~~
+
+## Admin
+- email: admin@eesti.ee
+- password: Kala.maja1
