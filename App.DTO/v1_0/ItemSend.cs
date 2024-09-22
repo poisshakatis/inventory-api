@@ -7,8 +7,7 @@ namespace App.DTO.v1_0;
 
 public class ItemSend
 {
-    [BindNever]
-    public Guid Id { get; set; }
+    [BindNever] public Guid Id { get; set; }
     [MaxLength(128)] public required string Name { get; set; }
     public required string ImageName { get; set; }
     [MaxLength(128)] public string? SerialNumber { get; set; }

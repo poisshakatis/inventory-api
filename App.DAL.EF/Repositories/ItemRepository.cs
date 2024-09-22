@@ -2,14 +2,16 @@ using App.Constants;
 using App.Contracts.DAL.Repositories;
 using App.Domain.Identity;
 using App.DTO.v1_0;
+using App.Services;
 using DALDTO = App.DAL.DTO;
 using Base.DAL.EF;
+using Helpers;
 using Microsoft.EntityFrameworkCore;
 using Item = App.Domain.Item;
 
 namespace App.DAL.EF.Repositories;
 
-public class ItemRepository : BaseEntityRepository<Domain.Item, AppDbContext>,
+public class ItemRepository : BaseEntityRepository<Item, AppDbContext>,
     IItemRepository
 {
     public ItemRepository(AppDbContext dbContext) : base(dbContext)
@@ -19,23 +21,7 @@ public class ItemRepository : BaseEntityRepository<Domain.Item, AppDbContext>,
     public async Task<IEnumerable<DALDTO.Item>> AllWithStorageAsync(Guid userId, string? query, int? limit)
     {
         var res = await GetAllItems(userId, query, limit);
-        return res.Select(MapDomainToDalDto);
-    }
-
-    private static DALDTO.Item MapDomainToDalDto(Domain.Item item)
-    {
-        return new DALDTO.Item
-        {
-            Id = item.Id,
-            Name = item.Name,
-            ImageName = item.ImageName,
-            SerialNumber = item.SerialNumber,
-            Description = item.Description,
-            Category = item.Category,
-            Quantity = item.Quantity,
-            StorageId = item.StorageId,
-            StorageName = item.Storage!.Name,
-        };
+        return res.Select(ItemService.MapDomainToDalDto);
     }
 
     public async Task<DALDTO.Item?> FindWithStorageAsync(Guid id)
@@ -44,7 +30,7 @@ public class ItemRepository : BaseEntityRepository<Domain.Item, AppDbContext>,
             .Include(i => i.Storage)
             .FirstOrDefaultAsync(i => i.Id.Equals(id));
 
-        return res != null ? MapDomainToDalDto(res) : null;
+        return res != null ? ItemService.MapDomainToDalDto(res) : null;
     }
 
     public async Task Update(ItemReceive item)
@@ -56,55 +42,20 @@ public class ItemRepository : BaseEntityRepository<Domain.Item, AppDbContext>,
 
         if (oldImageName != null)
         {
-            var oldImagePath = GetImagePath(oldImageName);
+            var oldImagePath = FileHelpers.GetImagePath(oldImageName);
 
             File.Delete(oldImagePath);
         }
 
-        var newImagePath = GetImagePath(item.Image.FileName);
+        await ItemService.UploadImage(item);
 
-        await UploadImage(item, newImagePath);
-
-        RepoDbSet.Update(MapItemReceiveToDomain(item));
-    }
-
-    private static Item MapItemReceiveToDomain(ItemReceive item)
-    {
-        return new Domain.Item
-        {
-            Id = item.Id,
-            Name = item.Name,
-            ImageName = item.Image.FileName,
-            SerialNumber = item.SerialNumber,
-            Description = item.Description,
-            Category = item.Category,
-            Quantity = item.Quantity,
-            StorageId = item.StorageId
-        };
+        RepoDbSet.Update(ItemService.MapItemReceiveToDomain(item));
     }
 
     public async Task Add(ItemReceive item)
     {
-        var imagePath = GetImagePath(item.Image.FileName);
-
-        await UploadImage(item, imagePath);
-
-        RepoDbSet.Add(MapItemReceiveToDomain(item));
-    }
-
-    private static async Task UploadImage(ItemReceive item, string imagePath)
-    {
-        await using var stream = new FileStream(imagePath, FileMode.Create);
-        await item.Image.CopyToAsync(stream);
-    }
-
-    private static string GetImagePath(string imageName)
-    {
-        var dir = Directory.GetParent(Environment.CurrentDirectory)!.FullName;
-        var uploadsFolder = Path.Combine(dir, "uploads");
-        Directory.CreateDirectory(uploadsFolder);
-
-        return Path.Combine(uploadsFolder, imageName);
+        await ItemService.UploadImage(item);
+        RepoDbSet.Add(ItemService.MapItemReceiveToDomain(item));
     }
 
     public async Task<List<UserCategoryItemCount>> AllUsersWithCategoryItemCount(List<AppUser> users)
@@ -129,10 +80,7 @@ public class ItemRepository : BaseEntityRepository<Domain.Item, AppDbContext>,
         foreach (var category in Enum.GetValues<Category>())
         {
             var sum = items.Where(i => i.Category == category).Sum(i => i.Quantity);
-            if (sum > 0)
-            {
-                res.Add(category, sum);
-            }
+            if (sum > 0) res.Add(category, sum);
         }
 
         return res;
@@ -145,18 +93,13 @@ public class ItemRepository : BaseEntityRepository<Domain.Item, AppDbContext>,
             .Where(i => i.Storage!.AppUserId.Equals(userId));
 
         if (!string.IsNullOrEmpty(query))
-        {
-            baseQuery = baseQuery.Where(i => 
+            baseQuery = baseQuery.Where(i =>
                 i.Name.Contains(query) ||
                 (i.SerialNumber != null && i.SerialNumber.Contains(query)) ||
                 i.Description.Contains(query) ||
                 (i.Storage != null && i.Storage.Name.Contains(query)));
-        }
 
-        if (limit.HasValue)
-        {
-            baseQuery = baseQuery.Take(limit.Value);
-        }
+        if (limit.HasValue) baseQuery = baseQuery.Take(limit.Value);
 
         return await baseQuery.ToListAsync();
     }

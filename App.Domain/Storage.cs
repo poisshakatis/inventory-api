@@ -7,12 +7,11 @@ namespace App.Domain;
 
 public class Storage : BaseEntityId, IDomainAppUser<AppUser>
 {
-    [MaxLength(128)]
-    public required string Name { get; set; }
-    
+    [MaxLength(128)] public required string Name { get; set; }
+
     public Guid? ParentStorageId { get; set; }
     public Storage? ParentStorage { get; set; }
-    
+
     public Guid AppUserId { get; set; }
     public AppUser? AppUser { get; set; }
 }

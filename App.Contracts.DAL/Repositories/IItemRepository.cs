@@ -2,7 +2,6 @@
 using App.DTO.v1_0;
 using DALDTO = App.DAL.DTO;
 using Base.Contracts.DAL;
-using Microsoft.AspNetCore.Identity;
 
 namespace App.Contracts.DAL.Repositories;
 

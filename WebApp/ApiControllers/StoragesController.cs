@@ -38,7 +38,7 @@ public class StoragesController(IAppUnitOfWork uow, IMapper mapper) : Controller
             .Select(s => _mapper.Map(s));
         return Ok(res);
     }
-    
+
     /// <summary>
     /// Return storage
     /// </summary>
@@ -52,14 +52,11 @@ public class StoragesController(IAppUnitOfWork uow, IMapper mapper) : Controller
     public async Task<ActionResult<PublicDTO.Storage>> GetStorage(Guid id)
     {
         var storage = await uow.Storages.FindWithParentAsync(id);
-        if (storage == null)
-        {
-            return NotFound();
-        }
-    
+        if (storage == null) return NotFound();
+
         return Ok(_mapper.Map(storage));
     }
-    
+
     /// <summary>
     /// Modify storage
     /// </summary>
@@ -73,17 +70,14 @@ public class StoragesController(IAppUnitOfWork uow, IMapper mapper) : Controller
     [Consumes(MediaTypeNames.Application.Json)]
     public async Task<IActionResult> PutStorage(Guid id, PublicDTO.Storage storage)
     {
-        if (id != storage.Id)
-        {
-            return BadRequest();
-        }
-    
+        if (id != storage.Id) return BadRequest();
+
         uow.Storages.Update(_mapper.Map(storage)!, User.GetUserId());
         await uow.SaveChangesAsync();
-    
+
         return NoContent();
     }
-    
+
     /// <summary>
     /// Add storage
     /// </summary>
@@ -98,11 +92,11 @@ public class StoragesController(IAppUnitOfWork uow, IMapper mapper) : Controller
     {
         uow.Storages.Add(_mapper.Map(storage)!, User.GetUserId());
         await uow.SaveChangesAsync();
-    
+
         return CreatedAtAction("GetStorage", new
         {
             version = HttpContext.GetRequestedApiVersion()?.ToString(),
-            id = storage.Id,
+            id = storage.Id
         }, storage);
     }
 
@@ -118,14 +112,11 @@ public class StoragesController(IAppUnitOfWork uow, IMapper mapper) : Controller
     public async Task<IActionResult> DeleteStorage(Guid id)
     {
         var storage = await uow.Storages.FindAsync(id);
-        if (storage == null)
-        {
-            return NotFound();
-        }
-        
+        if (storage == null) return NotFound();
+
         uow.Storages.Remove(storage);
         await uow.SaveChangesAsync();
-        
+
         return NoContent();
     }
 }

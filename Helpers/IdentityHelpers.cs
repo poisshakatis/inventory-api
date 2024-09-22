@@ -12,7 +12,7 @@ public static class IdentityHelpers
         return Guid.Parse(
             user.Claims.Single(c => c.Type == ClaimTypes.NameIdentifier).Value);
     }
-    
+
     public static string GenerateJwt(IEnumerable<Claim> claims, string? key, string issuer, string audience,
         int expiresInSeconds)
     {
@@ -20,9 +20,9 @@ public static class IdentityHelpers
         var signingCredentials = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
         var expires = DateTime.Now.AddSeconds(expiresInSeconds);
         var token = new JwtSecurityToken(
-            issuer: issuer,
-            audience: audience,
-            claims: claims,
+            issuer,
+            audience,
+            claims,
             expires: expires,
             signingCredentials: signingCredentials
         );

@@ -9,13 +9,13 @@ namespace App.DAL.EF.Seeding;
 public static class AppDataInit
 {
     private const string AdminEmail = "admin@eesti.ee";
-    
+
 
     public static void SeedAppData(UserManager<AppUser> userManager, AppDbContext context)
     {
         var user = userManager.FindByEmailAsync(AdminEmail).Result;
         var parentStorageId = Guid.Parse("ecea052c-c48a-4e6f-9c32-71f3ca0a97b5");
-        
+
         if (user != null && !context.Storages.Any())
         {
             context.Add(new Storage
@@ -43,7 +43,7 @@ public static class AppDataInit
     {
         context.Database.EnsureDeleted();
     }
-        
+
     public static void SeedIdentity(UserManager<AppUser> userManager, RoleManager<AppRole> roleManager)
     {
         var res = roleManager.CreateAsync(new AppRole
@@ -51,11 +51,8 @@ public static class AppDataInit
             Name = "Admin"
         }).Result;
 
-        if (!res.Succeeded)
-        {
-            Console.WriteLine(res.ToString());
-        }
-        
+        if (!res.Succeeded) Console.WriteLine(res.ToString());
+
         var user = userManager.FindByEmailAsync(AdminEmail).Result;
 
         if (user != null) return;
@@ -67,18 +64,11 @@ public static class AppDataInit
             FirstName = "Admin",
             LastName = "Eesti"
         };
-        
+
         res = userManager.CreateAsync(user, "Kala.maja1").Result;
-        if (!res.Succeeded)
-        {
-            Console.WriteLine(res.ToString());
-        }
+        if (!res.Succeeded) Console.WriteLine(res.ToString());
 
         res = userManager.AddToRoleAsync(user, "Admin").Result;
-        if (!res.Succeeded)
-        {
-            Console.WriteLine(res.ToString());
-        }
+        if (!res.Succeeded) Console.WriteLine(res.ToString());
     }
-
 }

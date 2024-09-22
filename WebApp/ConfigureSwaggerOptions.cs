@@ -12,7 +12,6 @@ public class ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider) : 
     {
         // add all possible api versions found
         foreach (var description in provider.ApiVersionDescriptions)
-        {
             options.SwaggerDoc(
                 description.GroupName,
                 new OpenApiInfo
@@ -21,7 +20,6 @@ public class ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider) : 
                     Version = description.ApiVersion.ToString()
                     // Description, TermsOfServce, Contact, License, ...
                 });
-        }
 
         // include xml comments (enable creation in csproj file)
         var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -49,7 +47,7 @@ public class ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider) : 
         {
             {
                 new OpenApiSecurityScheme
-                {    
+                {
                     Reference = new OpenApiReference
                     {
                         Type = ReferenceType.SecurityScheme,

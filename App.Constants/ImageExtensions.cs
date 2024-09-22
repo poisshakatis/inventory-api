@@ -1,4 +1,5 @@
 namespace App.Constants;
+
 using System.Collections.Generic;
 
 public static class ImageExtensions
@@ -8,10 +9,7 @@ public static class ImageExtensions
 
     public static bool IsValidImageExtension(string extension)
     {
-        if (string.IsNullOrWhiteSpace(extension) || !extension.StartsWith('.'))
-        {
-            return false;
-        }
+        if (string.IsNullOrWhiteSpace(extension) || !extension.StartsWith('.')) return false;
 
         return ValidImageExtensions.Contains(extension.ToLower());
     }

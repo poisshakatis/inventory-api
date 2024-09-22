@@ -57,10 +57,7 @@ public class ItemsController(IAppUnitOfWork uow, IMapper mapper, UserManager<App
     public async Task<ActionResult<PublicDTO.ItemSend>> GetItem(Guid id)
     {
         var item = await uow.Items.FindWithStorageAsync(id);
-        if (item == null)
-        {
-            return NotFound();
-        }
+        if (item == null) return NotFound();
 
         return Ok(_mapper.Map(item));
     }
@@ -78,10 +75,7 @@ public class ItemsController(IAppUnitOfWork uow, IMapper mapper, UserManager<App
     [Consumes(MediaTypeNames.Multipart.FormData)]
     public async Task<IActionResult> PutItem(Guid id, [FromForm] PublicDTO.ItemReceive item)
     {
-        if (id != item.Id)
-        {
-            return BadRequest();
-        }
+        if (id != item.Id) return BadRequest();
 
         await uow.Items.Update(item);
         await uow.SaveChangesAsync();
@@ -103,17 +97,15 @@ public class ItemsController(IAppUnitOfWork uow, IMapper mapper, UserManager<App
     public async Task<ActionResult<PublicDTO.ItemSend>> PostItem([FromForm] PublicDTO.ItemReceive item)
     {
         if (item.Image.Length == 0 || !ImageExtensions.IsValidImageExtension(Path.GetExtension(item.Image.FileName)))
-        {
             return BadRequest("This is not an image file! " + item.Image.FileName);
-        }
-        
+
         await uow.Items.Add(item);
         await uow.SaveChangesAsync();
-        
+
         return CreatedAtAction("GetItem", new
         {
             version = HttpContext.GetRequestedApiVersion()?.ToString(),
-            id = item.Id,
+            id = item.Id
         }, item);
     }
 
@@ -129,28 +121,16 @@ public class ItemsController(IAppUnitOfWork uow, IMapper mapper, UserManager<App
     public async Task<IActionResult> DeleteItem(Guid id)
     {
         var item = await uow.Items.FindAsync(id);
-        if (item == null)
-        {
-            return NotFound();
-        }
+        if (item == null) return NotFound();
 
-        var imagePath = GetImagePath(item.ImageName);
-        
+        var imagePath = FileHelpers.GetImagePath(item.ImageName);
+
         System.IO.File.Delete(imagePath);
 
         uow.Items.Remove(item);
         await uow.SaveChangesAsync();
 
         return NoContent();
-    }
-    
-    private static string GetImagePath(string imageName)
-    {
-        var dir = Directory.GetParent(Environment.CurrentDirectory)!.FullName;
-        var uploadsFolder = Path.Combine(dir, "uploads");
-        Directory.CreateDirectory(uploadsFolder);
-
-        return Path.Combine(uploadsFolder, imageName);
     }
 
     /// <summary>

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace App.DAL.EF.Repositories;
 
 public class StorageRepository : BaseEntityRepository<Domain.Storage, AppDbContext>,
-        IStorageRepository
+    IStorageRepository
 {
     public StorageRepository(AppDbContext dbContext) : base(dbContext)
     {
@@ -39,15 +39,15 @@ public class StorageRepository : BaseEntityRepository<Domain.Storage, AppDbConte
         var res = await RepoDbSet
             .Include(s => s.ParentStorage)
             .FirstOrDefaultAsync(s => s.Id.Equals(id));
-    
+
         return res != null ? MapDomainToDalDto(res) : null;
     }
-    
+
     public void Update(DALDTO.Storage storage, Guid userId)
     {
         RepoDbSet.Update(MapDalDtoToDomain(storage, userId));
     }
-    
+
     private static Domain.Storage MapDalDtoToDomain(DALDTO.Storage storage, Guid userId)
     {
         return new Domain.Storage
@@ -58,7 +58,7 @@ public class StorageRepository : BaseEntityRepository<Domain.Storage, AppDbConte
             AppUserId = userId
         };
     }
-    
+
     public void Add(DALDTO.Storage storage, Guid userId)
     {
         RepoDbSet.Add(MapDalDtoToDomain(storage, userId));

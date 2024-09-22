@@ -21,10 +21,7 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
                        throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-builder.Services.AddDbContext<AppDbContext>(options =>
-{
-    options.UseNpgsql(connectionString);
-});
+builder.Services.AddDbContext<AppDbContext>(options => { options.UseNpgsql(connectionString); });
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddScoped<IAppUnitOfWork, AppUow>();
@@ -54,7 +51,7 @@ builder.Services
                         builder.Configuration.GetValue<string>("Jwt:Key")
                     )
                 ),
-            ClockSkew = TimeSpan.Zero,
+            ClockSkew = TimeSpan.Zero
         };
     });
 
@@ -128,17 +125,15 @@ app.UseSwaggerUI(options =>
 {
     var provider = app.Services.GetRequiredService<IApiVersionDescriptionProvider>();
     foreach (var description in provider.ApiVersionDescriptions)
-    {
         options.SwaggerEndpoint(
             $"/swagger/{description.GroupName}/swagger.json",
             description.GroupName.ToUpperInvariant()
         );
-    }
 });
 
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    "default",
+    "{controller=Home}/{action=Index}/{id?}");
 
 app.MapRazorPages();
 
@@ -146,34 +141,23 @@ app.Run();
 
 static void SetupAppData(WebApplication app, IConfiguration configuration)
 {
-    using var serviceScope = ((IApplicationBuilder) app).ApplicationServices
+    using var serviceScope = ((IApplicationBuilder)app).ApplicationServices
         .GetRequiredService<IServiceScopeFactory>()
         .CreateScope();
     using var context = serviceScope.ServiceProvider.GetRequiredService<AppDbContext>();
 
     if (!context.Database.ProviderName!.Contains("InMemory"))
     {
-        if (configuration.GetValue<bool>("DataInitialization:DropDatabase"))
-        {
-            AppDataInit.DeleteDatabase(context);
-        }
+        if (configuration.GetValue<bool>("DataInitialization:DropDatabase")) AppDataInit.DeleteDatabase(context);
 
-        if (configuration.GetValue<bool>("DataInitialization:MigrateDatabase"))
-        {
-            AppDataInit.MigrateDatabase(context);
-        }
+        if (configuration.GetValue<bool>("DataInitialization:MigrateDatabase")) AppDataInit.MigrateDatabase(context);
     }
 
     using var userManager = serviceScope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
     using var roleManager = serviceScope.ServiceProvider.GetRequiredService<RoleManager<AppRole>>();
-    
+
     if (configuration.GetValue<bool>("DataInitialization:SeedIdentity"))
-    {
         AppDataInit.SeedIdentity(userManager, roleManager);
-    }
-    
-    if (configuration.GetValue<bool>("DataInitialization:SeedData"))
-    {
-        AppDataInit.SeedAppData(userManager, context);
-    }
+
+    if (configuration.GetValue<bool>("DataInitialization:SeedData")) AppDataInit.SeedAppData(userManager, context);
 }
