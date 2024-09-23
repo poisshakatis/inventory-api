@@ -2,9 +2,11 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System.Text.Json.Serialization;
 using App.Contracts.DAL;
+using App.Contracts.Services;
 using App.DAL.EF;
 using App.DAL.EF.Seeding;
 using App.Domain.Identity;
+using App.Services;
 using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
 using InventoryApi;
@@ -25,6 +27,7 @@ builder.Services.AddDbContext<AppDbContext>(options => { options.UseNpgsql(conne
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddScoped<IAppUnitOfWork, AppUow>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 builder.Services
     .AddIdentity<AppUser, AppRole>(options => options.SignIn.RequireConfirmedAccount = false)

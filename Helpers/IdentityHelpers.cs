@@ -13,7 +13,7 @@ public static class IdentityHelpers
             user.Claims.Single(c => c.Type == ClaimTypes.NameIdentifier).Value);
     }
 
-    public static string GenerateJwt(IEnumerable<Claim> claims, string? key, string issuer, string audience,
+    public static string GenerateJwt(IEnumerable<Claim> claims, string key, string issuer, string audience,
         int expiresInSeconds)
     {
         var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));

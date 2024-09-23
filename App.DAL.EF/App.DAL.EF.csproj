@@ -15,7 +15,6 @@
         <ProjectReference Include="..\App.Contracts.DAL\App.Contracts.DAL.csproj"/>
         <ProjectReference Include="..\App.Domain\App.Domain.csproj"/>
         <ProjectReference Include="..\App.DTO\App.DTO.csproj"/>
-        <ProjectReference Include="..\App.Services\App.Services.csproj"/>
         <ProjectReference Include="..\Base.DAL.EF\Base.DAL.EF.csproj"/>
         <ProjectReference Include="..\Helpers\Helpers.csproj"/>
     </ItemGroup>

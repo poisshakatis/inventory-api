@@ -2,7 +2,6 @@ using App.Constants;
 using App.Contracts.DAL.Repositories;
 using App.Domain.Identity;
 using App.DTO.v1_0;
-using App.Services;
 using DALDTO = App.DAL.DTO;
 using Base.DAL.EF;
 using Helpers;
@@ -21,7 +20,7 @@ public class ItemRepository : BaseEntityRepository<Item, AppDbContext>,
     public async Task<IEnumerable<DALDTO.Item>> AllWithStorageAsync(Guid userId, string? query, int? limit)
     {
         var res = await GetAllItems(userId, query, limit);
-        return res.Select(ItemService.MapDomainToDalDto);
+        return res.Select(MapDomainToDalDto);
     }
 
     public async Task<DALDTO.Item?> FindWithStorageAsync(Guid id)
@@ -30,7 +29,7 @@ public class ItemRepository : BaseEntityRepository<Item, AppDbContext>,
             .Include(i => i.Storage)
             .FirstOrDefaultAsync(i => i.Id.Equals(id));
 
-        return res != null ? ItemService.MapDomainToDalDto(res) : null;
+        return res != null ? MapDomainToDalDto(res) : null;
     }
 
     public async Task Update(ItemReceive item)
@@ -47,15 +46,15 @@ public class ItemRepository : BaseEntityRepository<Item, AppDbContext>,
             File.Delete(oldImagePath);
         }
 
-        await ItemService.UploadImage(item);
+        await UploadImage(item);
 
-        RepoDbSet.Update(ItemService.MapItemReceiveToDomain(item));
+        RepoDbSet.Update(MapItemReceiveToDomain(item));
     }
 
     public async Task Add(ItemReceive item)
     {
-        await ItemService.UploadImage(item);
-        RepoDbSet.Add(ItemService.MapItemReceiveToDomain(item));
+        await UploadImage(item);
+        RepoDbSet.Add(MapItemReceiveToDomain(item));
     }
 
     public async Task<List<UserCategoryItemCount>> AllUsersWithCategoryItemCount(List<AppUser> users)
@@ -102,5 +101,43 @@ public class ItemRepository : BaseEntityRepository<Item, AppDbContext>,
         if (limit.HasValue) baseQuery = baseQuery.Take(limit.Value);
 
         return await baseQuery.ToListAsync();
+    }
+
+    private static Item MapItemReceiveToDomain(ItemReceive item)
+    {
+        return new Item
+        {
+            Id = item.Id,
+            Name = item.Name,
+            ImageName = item.Image.FileName,
+            SerialNumber = item.SerialNumber,
+            Description = item.Description,
+            Category = item.Category,
+            Quantity = item.Quantity,
+            StorageId = item.StorageId
+        };
+    }
+
+    private static async Task UploadImage(ItemReceive item)
+    {
+        var imagePath = FileHelpers.GetImagePath(item.Image.FileName);
+        await using var stream = new FileStream(imagePath, FileMode.Create);
+        await item.Image.CopyToAsync(stream);
+    }
+
+    private static DALDTO.Item MapDomainToDalDto(Item item)
+    {
+        return new DALDTO.Item
+        {
+            Id = item.Id,
+            Name = item.Name,
+            ImageName = item.ImageName,
+            SerialNumber = item.SerialNumber,
+            Description = item.Description,
+            Category = item.Category,
+            Quantity = item.Quantity,
+            StorageId = item.StorageId,
+            StorageName = item.Storage!.Name
+        };
     }
 }
