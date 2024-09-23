@@ -7,10 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\App.Contracts.Services\App.Contracts.Services.csproj" />
         <ProjectReference Include="..\App.DAL.EF\App.DAL.EF.csproj"/>
         <ProjectReference Include="..\App.DTO\App.DTO.csproj"/>
-        <ProjectReference Include="..\App.Services\App.Services.csproj" />
         <ProjectReference Include="..\Helpers\Helpers.csproj"/>
     </ItemGroup>
 

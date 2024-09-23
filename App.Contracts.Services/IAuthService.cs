@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using App.DTO.v1_0;
 using App.DTO.v1_0.Identity;
 
 namespace App.Contracts.Services;
@@ -15,24 +16,24 @@ public class AuthResult<T>
 {
     public bool Success { get; set; }
     public T? Data { get; set; }
-    public string[]? Errors { get; set; }
+    public RestApiErrorResponse? ErrorResponse { get; set; }
 
-    public AuthResult(bool success = false, T? data = default, params string[] errors)
+    public AuthResult(bool success = false, T? data = default, RestApiErrorResponse? errorResponse = default)
     {
         Success = success;
         Data = data;
-        Errors = errors;
+        ErrorResponse = errorResponse;
     }
 }
 
 public class AuthResult
 {
     public bool Success { get; set; }
-    public string[] Errors { get; set; }
+    public RestApiErrorResponse? ErrorResponse { get; set; }
 
-    public AuthResult(bool success = false, params string[] errors)
+    public AuthResult(bool success = false, RestApiErrorResponse? errorResponse = default)
     {
         Success = success;
-        Errors = errors;
+        ErrorResponse = errorResponse;
     }
 }
