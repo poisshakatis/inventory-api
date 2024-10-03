@@ -1,0 +1,33 @@
+services:
+  sql:
+    image: postgres:17
+    container_name: sql
+    ports:
+      # external: internal
+      - "7890:5432"
+    volumes:
+      - sql-volume:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+    restart: on-failure
+    logging:
+      options:
+        max-size: 10m
+        max-file: 3
+        
+  web:
+    image: nginx:1-alpine
+    container_name: image-storage
+    ports:
+      - "8080:80"
+    volumes:
+      - ./uploads:/usr/share/nginx/html/uploads
+    restart: on-failure
+    logging:
+      options:
+        max-size: 10m
+        max-file: 3
+
+volumes:
+  sql-volume:
