@@ -1,3 +1,6 @@
+# NB!
+Tegemist on Net Group proovitööga
+
 ## Useful commands in .net console CLI
 
 Install tooling
